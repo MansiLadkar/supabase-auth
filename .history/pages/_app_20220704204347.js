@@ -26,21 +26,6 @@ function MyApp({ Component, pageProps }) {
       authListener.unsubscribe();
     };
   }, []);
-  async function handleAuthChange(event, session) {
-    await fetch("/api/auth", {
-      method: "POST",
-      headers: new Headers({ "Content-Type": "application/json " }),
-      credentials: "same-origin",
-      body: JSON.stringify({ event, session }),
-    });
-  }
-  async function checkUser() {
-    /* when the component loads, checks user to show or hide sign in link */
-    const user = await supabase.auth.user();
-    if (user) {
-      setAuthenticatedState("authenticated");
-    }
-  }
   return (
     <div>
       <nav></nav>
