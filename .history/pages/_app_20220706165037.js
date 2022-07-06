@@ -5,19 +5,19 @@ import { supabase } from "../client";
 import { useRouter } from "next/router";
 
 function MyApp({ Component, pageProps }) {
-  const router = useRouter();
   const [authenticatedState, setAuthenticatedState] =
     useState("not-authenticated");
+  const router = useRouter();
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         handleAuthChange(event, session);
-        if (event === "SIGNED_IN") {
+        if (event === "SIGNED_OUT") {
           setAuthenticatedState("authenticated");
           router.push("/profile");
         }
-        if (event === "SIGNED_OUT") {
-          setAuthenticatedState("not-authenticated");
+        if (event === "SIGNED_IN") {
+          setAuthenticatedState("non-authenticated");
         }
       }
     );
@@ -26,19 +26,22 @@ function MyApp({ Component, pageProps }) {
       authListener.unsubscribe();
     };
   }, []);
+
   async function checkUser() {
+    /* when the component loads, checks user to show or hide sign in link */
     const user = await supabase.auth.user();
     if (user) {
       setAuthenticatedState("authenticated");
     }
-  }
-  async function handleAuthChange(event, session) {
-    await fetch("/api/auth", {
-      method: "POST",
-      headers: new Headers({ "Content-Type": "application/json" }),
-      credentials: "same-origin",
-      body: JSON.stringify({ event, session }),
-    });
+
+    async function handleAuthChange(event, session) {
+      await fetch("/api/auth", {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json " }),
+        credentials: "same-origin",
+        body: JSON.stringify({ event, session }),
+      });
+    }
   }
   return (
     <div>
@@ -49,7 +52,7 @@ function MyApp({ Component, pageProps }) {
         <Link href="/profile">
           <a style={linkStyle}>Profile</a>
         </Link>
-        {authenticatedState === "not-authenticated" && (
+        {authenticatedState === "non-authenticated" && (
           <Link href="/sign-in">
             <a style={linkStyle}>Sign In</a>
           </Link>
@@ -63,12 +66,7 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-const navStyle = {
-  margin: 20,
-};
-
-const linkStyle = {
-  marginRight: 10,
-};
+const navStyle = { margin: 20 };
+const linkStyle = { marginRight: 10 };
 
 export default MyApp;
